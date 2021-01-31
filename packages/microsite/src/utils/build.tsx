@@ -205,7 +205,7 @@ export const renderPage = async (
   };
 };
 
-const unwrapPage = (Page: any) => {
+export const unwrapPage = (Page: any) => {
   return Page.Component ? Page.Component : Page;
 };
 
