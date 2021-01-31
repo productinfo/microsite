@@ -13,7 +13,7 @@ export const __InternalDocContext = createContext<any>({});
 const _Document = () => {
   return (
     <Html>
-      <Head />
+      <Head/>
       <body>
         <Main />
         <MicrositeScript />
@@ -60,10 +60,10 @@ export const Head: FunctionalComponent<JSX.HTMLAttributes<HTMLHeadElement>> = ({
   children,
   ...props
 }) => {
-  const { head } = useContext(__HeadContext);
-  const { preconnect = [], basePath = '/', hasGlobalScript = false, preload = [], styles = [] } = useContext(
+  const { dev = false, preconnect = [], basePath = '/', hasGlobalScript = false, preload = [], styles = [], __renderPageHead } = useContext(
     __InternalDocContext
   );
+
   return (
     <head {...props}>
       <meta {...({ charset: "utf-8" } as any)} />
@@ -73,8 +73,6 @@ export const Head: FunctionalComponent<JSX.HTMLAttributes<HTMLHeadElement>> = ({
       />
 
       <base href={basePath} />
-
-      <Fragment>{head.current}</Fragment>
 
       {preconnect.map((href) => (
         <link rel="preconnect" href={href} />
@@ -91,6 +89,10 @@ export const Head: FunctionalComponent<JSX.HTMLAttributes<HTMLHeadElement>> = ({
       {styles && styles.map((href) => <link rel="stylesheet" href={`./${href}`} />)}
 
       {children}
+
+      {dev && <meta name="microsite:start" />}
+      <Fragment>{__renderPageHead}</Fragment>
+      {dev && <meta name="microsite:end" />}
     </head>
   );
 };
@@ -109,10 +111,9 @@ export const MicrositeScript: FunctionalComponent = () => {
           <script
             type="module"
             dangerouslySetInnerHTML={{
-              __html: `import { h, render } from '/_snowpack/pkg/preact.js';
-\timport Page from '${dev}';
-\tconst Component = Page.Component ? Page.Component : Page;
-\trender(h(Component, ${JSON.stringify(devProps)}, null), document.getElementById('__microsite'));`,
+              __html: `import csr from '/_snowpack/pkg/microsite/client/csr.js';
+import Page from '${dev}';
+csr(Page, ${JSON.stringify(devProps)});`
             }}
           />
           <script
